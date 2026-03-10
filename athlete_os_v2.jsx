@@ -24,12 +24,54 @@ function getSuggestion(exercise, lastSets) {
 
 // ── WEEKLY LOAD ───────────────────────────────────────────────────────────────
 function calcACWR(gymSessions) {
-  if (gymSessions.length < 4) return null;
-  const vols = gymSessions.map(s => calcVolume(s.sets));
-  const acute = vols.slice(-7).reduce((a,v)=>a+v,0) / 7;
-  const chronic = vols.reduce((a,v)=>a+v,0) / vols.length;
-  if (!chronic) return null;
-  return (acute / chronic).toFixed(2);
+  if (!gymSessions.length) return null;
+
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const toDateKey = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+  const parseDateKey = (dateKey) => {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  };
+
+  // Aggregate total load by calendar date.
+  const dailyLoad = gymSessions.reduce((acc, session) => {
+    if (!session?.date) return acc;
+    acc[session.date] = (acc[session.date] || 0) + calcVolume(session.sets);
+    return acc;
+  }, {});
+
+  const availableDates = Object.keys(dailyLoad).sort();
+  if (!availableDates.length) return null;
+
+  // Product decision: anchor windows to latest logged training date.
+  const referenceDate = parseDateKey(availableDates[availableDates.length - 1]);
+  const chronicWindowDays = 28;
+  const acuteWindowDays = 7;
+  const chronicStartDate = new Date(referenceDate.getTime() - (chronicWindowDays - 1) * MS_PER_DAY);
+  const earliestDate = parseDateKey(availableDates[0]);
+
+  // Require a full 28-day history to avoid underestimating chronic load.
+  if (earliestDate > chronicStartDate) return null;
+
+  const getWindowSum = (windowDays) => {
+    let total = 0;
+    for (let dayOffset = 0; dayOffset < windowDays; dayOffset += 1) {
+      const d = new Date(referenceDate.getTime() - dayOffset * MS_PER_DAY);
+      total += dailyLoad[toDateKey(d)] || 0;
+    }
+    return total;
+  };
+
+  const acuteAvg = getWindowSum(acuteWindowDays) / acuteWindowDays;
+  const chronicAvg = getWindowSum(chronicWindowDays) / chronicWindowDays;
+  if (!chronicAvg) return null;
+
+  return (acuteAvg / chronicAvg).toFixed(2);
 }
 
 // ── CALENDAR HEATMAP ──────────────────────────────────────────────────────────
