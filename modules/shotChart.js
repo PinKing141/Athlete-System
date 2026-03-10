@@ -1,15 +1,15 @@
 // ── SHOT CHART COURT GEOMETRY ─────────────────────────────────────────────────
 // viewBox 500 × 470. Basket: (250, 417.5). 1ft = 10px. Verified intersections.
-const SC_VW = 500, SC_VH = 470;
-const SC_BX = 250, SC_BY = 417.5;
-const SC_R3 = 237.5;
-const SC_CY = 328.02;
-const SC_CL = 30, SC_CR = 470;
-const SC_PL = 170, SC_PR = 330;
-const SC_FY = 280;
-const SC_TY = 193.88;
-const SC_AFL = 56.35, SC_AFR = 443.65;
-const SC_CHR = 40, SC_FTR = 60;
+export const SC_VW = 500, SC_VH = 470;
+export const SC_BX = 250, SC_BY = 417.5;
+export const SC_R3 = 237.5;
+export const SC_CY = 328.02;
+export const SC_CL = 30, SC_CR = 470;
+export const SC_PL = 170, SC_PR = 330;
+export const SC_FY = 280;
+export const SC_TY = 193.88;
+export const SC_AFL = 56.35, SC_AFR = 443.65;
+export const SC_CHR = 40, SC_FTR = 60;
 
 const SC_A1 = Math.atan2(SC_CY - SC_BY, SC_CR - SC_BX);
 const SC_A2 = -65 * Math.PI / 180;
@@ -85,4 +85,28 @@ export function zoneColorFn(pct) {
   if (pct < 0.50)   return { fill:"#CA8A04", op:0.88, text:"#FEF08A" };
   if (pct < 0.58)   return { fill:"#166534", op:0.90, text:"#86EFAC" };
   return              { fill:"#14532D", op:0.93, text:"#4ADE80" };
+}
+
+export function HotZoneMapCourtLines() {
+  const s = "rgba(255,255,255,0.18)";
+  return (
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x={1} y={1} width={SC_VW-2} height={SC_VH-2} stroke={s} strokeWidth={1.1}/>
+      <line x1={SC_CL} y1={SC_VH} x2={SC_CL} y2={SC_CY} stroke={s} strokeWidth={1.1}/>
+      <line x1={SC_CR} y1={SC_VH} x2={SC_CR} y2={SC_CY} stroke={s} strokeWidth={1.1}/>
+      <path d={`M ${SC_CL},${SC_CY} A ${SC_R3},${SC_R3} 0 0,1 ${SC_CR},${SC_CY}`} stroke={s} strokeWidth={1.1}/>
+      <rect x={SC_PL} y={SC_FY} width={SC_PR-SC_PL} height={SC_VH-SC_FY} stroke={s} strokeWidth={1.1}/>
+      <path d={`M ${SC_PL},${SC_FY} A ${SC_FTR},${SC_FTR} 0 0,1 ${SC_PR},${SC_FY}`} stroke={s} strokeWidth={1.1}/>
+      <path d={`M ${SC_PL},${SC_FY} A ${SC_FTR},${SC_FTR} 0 0,0 ${SC_PR},${SC_FY}`} stroke={s} strokeWidth={1.1} strokeDasharray="6 6"/>
+      <path d={`M ${SC_BX-SC_CHR},430 L ${SC_BX-SC_CHR},${SC_BY} A ${SC_CHR},${SC_CHR} 0 0,1 ${SC_BX+SC_CHR},${SC_BY} L ${SC_BX+SC_CHR},430`} stroke={s} strokeWidth={1.1}/>
+      <rect x={SC_BX-30} y={430} width={60} height={2} fill={s} stroke="none"/>
+      <circle cx={SC_BX} cy={SC_BY} r={11.25} stroke="rgba(255,120,0,0.80)" strokeWidth={2.5}/>
+      {[400,390,360,330].map((ty,i) => (
+        <g key={i}>
+          <line x1={SC_PL} y1={ty} x2={SC_PL-8} y2={ty} stroke={s} strokeWidth={1.1}/>
+          <line x1={SC_PR} y1={ty} x2={SC_PR+8} y2={ty} stroke={s} strokeWidth={1.1}/>
+        </g>
+      ))}
+    </g>
+  );
 }

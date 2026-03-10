@@ -3,7 +3,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { usePersist } from "./modules/persistence";
 import { C, TYPE_C } from "./modules/constants";
 import { WORKOUTS } from "./modules/workouts";
-import { SC_ZPATHS, SHOT_ZONES, zoneColorFn } from "./modules/shotChart";
+import { HotZoneMapCourtLines, SC_BX, SC_BY, SC_CHR, SC_CL, SC_CR, SC_CY, SC_FTR, SC_FY, SC_PL, SC_PR, SC_R3, SC_VH, SC_VW, SC_ZPATHS, SHOT_ZONES, zoneColorFn } from "./modules/shotChart";
 import { SEED_GYM, SEED_SHOTS, SEED_GAMES, SEED_ATH, SEED_WELLNESS } from "./modules/seedData";
 import { injC, pctC, fmt, avg, calcVolume, findPRs, getReadiness, detectFatigue } from "./modules/helpers";
 
@@ -124,30 +124,6 @@ function CalendarHeatmap({ gymSessions, shotSessions, referenceDate = new Date()
 }
 
 // ── HOT ZONE MAP ──────────────────────────────────────────────────────────────
-function HotZoneMapCourtLines() {
-  const s = "rgba(255,255,255,0.18)";
-  return (
-    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <rect x={1} y={1} width={SC_VW-2} height={SC_VH-2} stroke={s} strokeWidth={1.1}/>
-      <line x1={SC_CL} y1={SC_VH} x2={SC_CL} y2={SC_CY} stroke={s} strokeWidth={1.1}/>
-      <line x1={SC_CR} y1={SC_VH} x2={SC_CR} y2={SC_CY} stroke={s} strokeWidth={1.1}/>
-      <path d={`M ${SC_CL},${SC_CY} A ${SC_R3},${SC_R3} 0 0,1 ${SC_CR},${SC_CY}`} stroke={s} strokeWidth={1.1}/>
-      <rect x={SC_PL} y={SC_FY} width={SC_PR-SC_PL} height={SC_VH-SC_FY} stroke={s} strokeWidth={1.1}/>
-      <path d={`M ${SC_PL},${SC_FY} A ${SC_FTR},${SC_FTR} 0 0,1 ${SC_PR},${SC_FY}`} stroke={s} strokeWidth={1.1}/>
-      <path d={`M ${SC_PL},${SC_FY} A ${SC_FTR},${SC_FTR} 0 0,0 ${SC_PR},${SC_FY}`} stroke={s} strokeWidth={1.1} strokeDasharray="6 6"/>
-      <path d={`M ${SC_BX-SC_CHR},430 L ${SC_BX-SC_CHR},${SC_BY} A ${SC_CHR},${SC_CHR} 0 0,1 ${SC_BX+SC_CHR},${SC_BY} L ${SC_BX+SC_CHR},430`} stroke={s} strokeWidth={1.1}/>
-      <rect x={SC_BX-30} y={430} width={60} height={2} fill={s} stroke="none"/>
-      <circle cx={SC_BX} cy={SC_BY} r={11.25} stroke="rgba(255,120,0,0.80)" strokeWidth={2.5}/>
-      {[400,390,360,330].map((ty,i) => (
-        <g key={i}>
-          <line x1={SC_PL} y1={ty} x2={SC_PL-8} y2={ty} stroke={s} strokeWidth={1.1}/>
-          <line x1={SC_PR} y1={ty} x2={SC_PR+8} y2={ty} stroke={s} strokeWidth={1.1}/>
-        </g>
-      ))}
-    </g>
-  );
-}
-
 function HotZoneMap({ shotsByZone }) {
   const [hov, setHov] = useState(null);
   const hovZ = hov ? SHOT_ZONES.find(z => z.id === hov) : null;
